@@ -1,8 +1,9 @@
-﻿using System;
+﻿using mystore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace MyStoreSystem
+namespace MyStore
 {
     class Program
     {
@@ -22,6 +23,7 @@ namespace MyStoreSystem
         static void Main(string[] args)
         {
             Productclass product1 = new Productclass();
+            CustomerClass customer1 = new CustomerClass();
 
             while (true)
             {
@@ -34,9 +36,18 @@ namespace MyStoreSystem
                             product1.displayproductmenue();
                             break;
                         }
-                    
+                    case 2:
+                        {
+                            customer1.DisplayCustomerMenu();
+                            break;
+                        }
+                    case 0:
+                        Console.WriteLine("Exiting program... Goodbye!");
+                        return;
 
-
+                    default:
+                        Console.WriteLine("Invalid option. Please try again.");
+                        break;
                 }
               
             }
