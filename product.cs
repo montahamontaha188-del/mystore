@@ -269,6 +269,10 @@ namespace MyStore
                 Console.WriteLine("print leter n to canccel and leter y to comfirm deleting .");
             }
         }
+        public Product GetProductById(int id)
+        {
+            return productsList.FirstOrDefault(p => p.Id == id);
+        }
     }
 }
 

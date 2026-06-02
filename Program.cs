@@ -16,20 +16,19 @@ namespace MyStore
             Console.WriteLine("3. Orders");
             Console.WriteLine("0. Exit");
             Console.Write("Select an option: ");
-
-
         }
 
         static void Main(string[] args)
         {
             Productclass product1 = new Productclass();
             CustomerClass customer1 = new CustomerClass();
+            OrderClass order1 = new OrderClass();
 
             while (true)
             {
                 displaymenue();
-                int choice = Convert.ToInt32(Console.ReadLine());
-                switch (choice)
+                int choice1 = Convert.ToInt32(Console.ReadLine());
+                switch (choice1)
                 {
                     case 1:
                         {
@@ -41,6 +40,9 @@ namespace MyStore
                             customer1.DisplayCustomerMenu();
                             break;
                         }
+                    case 3:
+                         order1.DisplayOrderMenu(product1, customer1);
+                        break;
                     case 0:
                         Console.WriteLine("Exiting program... Goodbye!");
                         return;

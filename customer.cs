@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MyStore;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -27,9 +28,9 @@ namespace mystore
                 Console.WriteLine("0. Back to Main Menu");
                 Console.Write("Select an option: ");
 
-                int choice = Convert.ToInt32(Console.ReadLine());
+                int choice2 = Convert.ToInt32(Console.ReadLine());
 
-                switch (choice)
+                switch (choice2)
                 {
                     case 1:
                         AddCustomer();
@@ -136,6 +137,11 @@ namespace mystore
                 Console.WriteLine($"ID: {cust.Id} | Name: {cust.Name} | Phone: {cust.PhoneNumber}");
             }
         }
+        public Customer GetCustomerById(int id)
+        {
+            return customersList.FirstOrDefault(c => c.Id == id);
+        }
+
 
     }
 }
