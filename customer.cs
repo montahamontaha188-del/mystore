@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Xml.Linq;
 
 namespace mystore
 {
@@ -18,17 +19,16 @@ namespace mystore
 
         public void DisplayCustomerMenu()
         {
-            bool inCustomerMenu = true;
-            while (inCustomerMenu)
+            
+            while (true)
             {
                 Console.WriteLine("\n--- CUSTOMER MENU ---");
                 Console.WriteLine("1. Add Customer");
                 Console.WriteLine("2. List All Customers");
                 Console.WriteLine("3. Find Customer by Name");
                 Console.WriteLine("0. Back to Main Menu");
-                Console.Write("Select an option: ");
-
-                int choice2 = Convert.ToInt32(Console.ReadLine());
+               
+                int choice2 = InputHelper.ReadInt("Select an option: ",0,3);
 
                 switch (choice2)
                 {
@@ -43,8 +43,8 @@ namespace mystore
                         break;
                     case 0:
                         Console.WriteLine("Returning to main menu...");
-                        inCustomerMenu = false;
-                        break;
+                        return;
+                        
                     default:
                         Console.WriteLine("Invalid choice. Please try again.");
                         break;
@@ -53,17 +53,13 @@ namespace mystore
         }
         private void AddCustomer()
         {
-            Console.Write("Enter customer name: ");
-            string name = Console.ReadLine()?.Trim();
+            
+            string name = InputHelper.ReadNonEmptyString("Enter customer name: ");
 
-            if (string.IsNullOrEmpty(name))
-            {
-                Console.WriteLine("Error: Name cannot be empty.");
-                return;
-            }
+           
 
             Console.Write("Enter phone number: ");
-            string phone = Console.ReadLine()?.Trim();
+            string phone = Console.ReadLine();
 
             if (string.IsNullOrEmpty(phone) || !phone.All(char.IsDigit))
             {
@@ -113,15 +109,10 @@ namespace mystore
         }
         private void FindCustomerByName()
         {
-            Console.Write("Enter name to search: ");
-            string searchName = Console.ReadLine()?.Trim();
 
-            if (string.IsNullOrEmpty(searchName))
-            {
-                Console.WriteLine("Error: Search query cannot be empty.");
-                return;
-            }
+            string searchName = InputHelper.ReadNonEmptyString("Enter name to search: ");
 
+          
 
             var results = customersList.Where(c => c.Name.Contains(searchName, StringComparison.OrdinalIgnoreCase)).ToList();
 

@@ -21,24 +21,24 @@ namespace mystore
         public DateTime OrderDate { get; set; }
         public double Total => Items.Sum(i => i.Subtotal);
     }
-    public class OrderClass
+    public class Orderservices
     {
-        private List<Order> ordersList = new List<Order>();
+        private List<Order> ordersList = new ();
         private int idCounter = 1;
 
-        public void DisplayOrderMenu(Productclass productManager, CustomerClass customerManager)
+        public void DisplayOrderMenu(Productservices productManager, CustomerClass customerManager)
         {
-            bool inOrderMenu = true;
-            while (inOrderMenu)
+            
+            while (true)
             {
                 Console.WriteLine("\n--- ORDER MENU ---");
                 Console.WriteLine("1. Create Order");
                 Console.WriteLine("2. List All Orders");
                 Console.WriteLine("3. View Order Details");
                 Console.WriteLine("0. Back to Main Menu");
-                Console.Write("Select an option: ");
 
-                int choice = Convert.ToInt32(Console.ReadLine());
+
+                int choice = InputHelper.ReadInt("Select an option: ",0,3);
 
                 switch (choice)
                 {
@@ -53,21 +53,20 @@ namespace mystore
                         break;
                     case 0:
                         Console.WriteLine("Returning to main menu...");
-                        inOrderMenu = false;
-                        break;
+                        return;
                     default:
                         Console.WriteLine("Invalid choice. Please try again.");
                         break;
                 }
             }
         }
-        private void CreateOrder(Productclass productManager, CustomerClass customerManager)
+        private void CreateOrder(Productservices productManager1, CustomerClass customerManager1)
         {
 
-            Console.Write("Enter Customer ID: ");
-            int customerId = Convert.ToInt32(Console.ReadLine());
+           
+            int customerId =InputHelper.ReadInt("Enter Customer ID: ");
 
-            Customer customer = customerManager.GetCustomerById(customerId);
+            var customer = customerManager1.GetCustomerById(customerId);
             if (customer == null)
             {
                 Console.WriteLine("Error: Customer not found!");
@@ -76,7 +75,7 @@ namespace mystore
 
             Order newOrder = new Order
             {
-                Id = idCounter,
+                Id = idCounter++,
                 Customer = customer,
                 OrderDate = DateTime.Now
             };
@@ -84,40 +83,30 @@ namespace mystore
 
             while (true)
             {
-                Console.Write("Enter Product ID to add (or 0 to finish adding): ");
-                int productId = Convert.ToInt32(Console.ReadLine());
+               
+                int productId = InputHelper.ReadInt("Enter Product ID to add (or 0 to finish adding): ");
 
                 if (productId == 0) break;
 
-                Product product = productManager.GetProductById(productId);
+                var product = productManager1.GetProductById(productId);
                 if (product == null)
                 {
                     Console.WriteLine("Error: Product not found!");
                     continue;
                 }
 
-                Console.Write($"Enter quantity for '{product.Name}' (Available: {product.Quantity}): ");
-                int quantity = Convert.ToInt32(Console.ReadLine());
+              
+                int quantity1 = InputHelper.ReadInt($"Enter quantity for '{product.Name}' (Available: {product.Quantity}): ",1, product.Quantity);
 
-                if (quantity > product.Quantity)
-                {
-                    Console.WriteLine($"Error: Not enough stock! Available only: {product.Quantity}. Please try again.");
-                    continue;
-                }
-                if (quantity <= 0)
-                {
-                    Console.WriteLine("Error: Quantity must be greater than 0.");
-                    continue;
-                }
-
- 
+               
+                
                 OrderItem item = new OrderItem
                 {
                     Product = product,
-                    Quantity = quantity
+                    Quantity = quantity1
                 };
                 newOrder.Items.Add(item);
-                Console.WriteLine($"Added {quantity} x '{product.Name}' to order.");
+                Console.WriteLine($"Added {quantity1} x '{product.Name}' to order.");
             }
 
  
@@ -127,25 +116,23 @@ namespace mystore
                 return;
             }
 
-            Console.Write($"\nTotal amount is: {newOrder.Total:0.00}. Confirm order? (y/n): ");
-            string confirm = Console.ReadLine()?.Trim().ToLower();
+            if (InputHelper.Confirm($"\nTotal amount is: {newOrder.Total:0.00}. Confirm order?"))
 
-            if (confirm == "y" || confirm == "yes")
+                
             {
  
-                foreach (var item in newOrder.Items)
+                foreach (var i in newOrder.Items)
                 {
-                    item.Product.Quantity -= item.Quantity;
+                    i.Product.Quantity -= i.Quantity;
                 }
 
                 ordersList.Add(newOrder);
-                idCounter++;
+                
                 Console.WriteLine($"Order ID: {newOrder.Id} created successfully with today's date.");
+                return;
             }
-            else
-            {
-                Console.WriteLine("Order cancelled.");
-            }
+
+            
         }
 
         private void ListAllOrders()
@@ -172,17 +159,17 @@ namespace mystore
 
         private void ViewOrderDetails()
         {
-            Console.Write("Enter Order ID to view details: ");
-            int id = Convert.ToInt32(Console.ReadLine());
+           
+            int id = InputHelper.ReadInt("Enter Order ID to view details: ");
 
-            Order order = ordersList.FirstOrDefault(o => o.Id == id);
+            var order = ordersList.FirstOrDefault(o => o.Id == id);
             if (order == null)
             {
                 Console.WriteLine("Error: Order ID not found.");
                 return;
             }
 
-            // طباعة الفاتورة الكاملة (Full Receipt)
+           
             Console.WriteLine("\n==========================================");
             Console.WriteLine($"                RECEIPT                  ");
             Console.WriteLine("==========================================");

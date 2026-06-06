@@ -15,19 +15,19 @@ namespace MyStore
             Console.WriteLine("2. Customers");
             Console.WriteLine("3. Orders");
             Console.WriteLine("0. Exit");
-            Console.Write("Select an option: ");
+            
         }
 
         static void Main(string[] args)
         {
-            Productclass product1 = new Productclass();
+            Productservices product1 = new Productservices();
             CustomerClass customer1 = new CustomerClass();
-            OrderClass order1 = new OrderClass();
+            Orderservices order1 = new Orderservices();
 
             while (true)
             {
                 displaymenue();
-                int choice1 = Convert.ToInt32(Console.ReadLine());
+                int choice1 = InputHelper.ReadInt("Select an option:", 0, 3); ;
                 switch (choice1)
                 {
                     case 1:

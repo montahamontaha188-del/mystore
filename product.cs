@@ -12,7 +12,7 @@ namespace MyStore
         public double Price { get; set; }
         public int Quantity { get; set; }
     }
-    public class Productclass
+    public class Productservices
     {
         private List<Product> productsList = new();
         private int idCounter = 1;
@@ -20,8 +20,8 @@ namespace MyStore
 
         public void displayproductmenue()
         {
-            bool inProductMenu = true;
-            while (inProductMenu)
+           
+            while (true)
             {
 
                 Console.WriteLine("\n--- PRODUCT MENU ---");
@@ -30,8 +30,7 @@ namespace MyStore
                 Console.WriteLine("3. Total value");
                 Console.WriteLine("4. Manage Existing Products (Search/Update/Delete) ");
                 Console.WriteLine("0. Back to Main Menu");
-                Console.Write("Select an option: ");
-                int choice2 = Convert.ToInt32(Console.ReadLine());
+                int choice2 = InputHelper.ReadInt("Select an option:", 0, 4);
 
 
                 switch (choice2)
@@ -42,12 +41,10 @@ namespace MyStore
                             break;
                         }
                     case 2:
-
                         {
                             ListProducts();
                             break;
                         }
-
                     case 3:
                         {
                             ShowTotalValue();
@@ -57,13 +54,9 @@ namespace MyStore
                         ManageMenu();
                         break;
                     case 0:
-
                         {
-
-                            Console.WriteLine("Returning to main menu...");
-                            inProductMenu = false;
-                            break;
-
+                            Console.WriteLine("Returning to main menu...");                           
+                            return;
                         }
                     default:
                         {
@@ -75,14 +68,13 @@ namespace MyStore
         }
         private void AddProduct()
         {
-            Console.Write("Enter product name: ");
-            string name = Console.ReadLine()?.Trim();
+            
+            string name = InputHelper.ReadNonEmptyString("Enter product name: ");
 
-            Console.Write("Enter product price: ");
-            double price = Convert.ToDouble(Console.ReadLine()?.Trim());
+            double price = InputHelper.ReadDouble("Enter product price: ");
 
-            Console.Write("Enter product quantity: ");
-            int quantity = Convert.ToInt32(Console.ReadLine()?.Trim());
+            int quantity = InputHelper.ReadInt("Enter product quantity: ",1);
+
             Product newProduct = new Product
             {
                 Id = idCounter++,
@@ -92,6 +84,7 @@ namespace MyStore
             };
 
             productsList.Add(newProduct);
+            
             Console.WriteLine($"Product '{name}' added successfully with ID: {newProduct.Id}");
         }
 
@@ -131,8 +124,8 @@ namespace MyStore
         private void ManageMenu()
         {
             {
-                bool inManageMenu = true;
-                while (inManageMenu)
+                
+                while (true)
                 {
                     Console.WriteLine("\n--- MANAGE PRODUCTS SUB-MENU ---");
                     Console.WriteLine("1. Search product by name");
@@ -140,9 +133,9 @@ namespace MyStore
                     Console.WriteLine("3. Update product quantity");
                     Console.WriteLine("4. Delete product by ID");
                     Console.WriteLine("0. Back to Product Menu");
-                    Console.Write("Select an option: ");
 
-                    int subChoice = Convert.ToInt32(Console.ReadLine());
+
+                    int subChoice = InputHelper.ReadInt("Select an option: ", 0, 4);
 
                     switch (subChoice)
                     {
@@ -160,8 +153,7 @@ namespace MyStore
                             break;
                         case 0:
                             Console.WriteLine("Returning to Product Menu...");
-                            inManageMenu = false;
-                            break;
+                            return;
                         default:
                             Console.WriteLine("Invalid choice. Please try again.");
                             break;
@@ -190,8 +182,8 @@ namespace MyStore
         }
         private void UpdateProductPrice()
         {
-            Console.Write("Enter product ID to update price: ");
-            int id = Convert.ToInt32(Console.ReadLine());
+           
+            int id = InputHelper.ReadInt("Enter product ID to update price: ") ;
 
             var prod = productsList.FirstOrDefault(p => p.Id == id);
 
@@ -201,14 +193,7 @@ namespace MyStore
                 return;
             }
 
-            Console.Write($"Current Price for '{prod.Name}' is {prod.Price:0.00}. Enter new price: ");
-            double newPrice = Convert.ToDouble(Console.ReadLine());
-
-            if (newPrice <= 0)
-            {
-                Console.WriteLine("Error: Price must be a positive number.");
-                return;
-            }
+            double newPrice = InputHelper.ReadDouble($"Current Price for '{prod.Name}' is {prod.Price:0.00}. Enter new price: ",0.01);
 
             prod.Price = newPrice;
             Console.WriteLine("Price updated successfully!");
@@ -216,7 +201,7 @@ namespace MyStore
         private void UpdateProductQuantity()
         {
             Console.Write("Enter product ID to update quantity: ");
-            int id = Convert.ToInt32(Console.ReadLine());
+            int id = InputHelper.ReadInt("Enter product ID to update quantity: " , 1);
 
             var prod = productsList.FirstOrDefault(p => p.Id == id);
 
@@ -226,14 +211,7 @@ namespace MyStore
                 return;
             }
 
-            Console.Write($"Current Quantity for '{prod.Name}' is {prod.Quantity}. Enter new quantity: ");
-            int newQuantity = Convert.ToInt32(Console.ReadLine());
-
-            if (newQuantity < 0)
-            {
-                Console.WriteLine("Error: Quantity cannot be negative.");
-                return;
-            }
+            int newQuantity = InputHelper.ReadInt($"Current Quantity for '{prod.Name}' is {prod.Quantity}. Enter new quantity: ",1);
 
             prod.Quantity = newQuantity;
             Console.WriteLine("Quantity updated successfully!");
@@ -241,10 +219,9 @@ namespace MyStore
 
         private void DeleteProductById()
         {
-            Console.Write("Enter product ID to delete: ");
-            int id = Convert.ToInt32(Console.ReadLine());
+            int id = InputHelper.ReadInt("Enter product ID to delete: ", 1);
 
-            Product prod = productsList.FirstOrDefault(p => p.Id == id);
+            var prod = productsList.FirstOrDefault(p => p.Id == id);
 
             if (prod == null)
             {
@@ -253,21 +230,18 @@ namespace MyStore
             }
 
             Console.Write($"Are you sure you want to delete {prod.Name}? (y/n): ");
-            string confirm = Console.ReadLine()?.Trim().ToLower();
+            string confirm = Console.ReadLine().ToLower();
 
-            if (confirm == "y" || confirm == "yes")
+            if (InputHelper.Confirm($"Are you sure you want to delete {prod.Name}?"))
             {
                 productsList.Remove(prod);
                 Console.WriteLine("Product deleted successfully.");
             }
-            else if (confirm ==  "n")
+            else
             {
                 Console.WriteLine("Deletion cancelled.");
             }
-            else
-            {
-                Console.WriteLine("print leter n to canccel and leter y to comfirm deleting .");
-            }
+          
         }
         public Product GetProductById(int id)
         {
