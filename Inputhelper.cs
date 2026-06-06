@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Globalization;
+
 
 namespace MyStore
 {
@@ -94,5 +96,22 @@ namespace MyStore
            
             return input.Trim().ToUpper();
         }
-    }
+         
+
+        public static DateTime ReadDate(string prompt)
+        {
+        while (true)
+        {
+            Console.Write(prompt);
+            string dateInput = Console.ReadLine();
+
+            if (DateTime.TryParseExact(dateInput, "dd-MM-yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime validDate))
+            {
+                return validDate; 
+            }
+
+            Console.WriteLine("Error: Invalid date format. Please use dd-MM-yyyy (e.g., 06-06-2026).");
+        }
+        }
+}
 }

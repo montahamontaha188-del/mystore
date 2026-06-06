@@ -222,6 +222,10 @@ namespace MyStore
 
             Console.WriteLine("==========================================");
         }
+        public List<Order> GetOrdersList()
+        {
+            return ordersList;
+        }
     }
 
 

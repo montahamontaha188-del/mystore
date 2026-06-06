@@ -310,6 +310,10 @@ namespace MyStore
                 );
             }
         }
+        public List<Product> GetProductsList()
+        {
+            return productsList;
+        }
     }
 }
 
