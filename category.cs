@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace mystore
+namespace MyStore
 {
     public enum Category
     {

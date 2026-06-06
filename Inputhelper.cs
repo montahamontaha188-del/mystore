@@ -80,5 +80,19 @@ namespace MyStore
                 Console.WriteLine("Error: Phone number cannot be empty and must contain only digits.");
             }
         }
+        public static string ReadOptionalCode(string prompt)
+        {
+            if (!string.IsNullOrEmpty(prompt)) Console.Write(prompt);
+            string input = Console.ReadLine();
+
+         
+            if (string.IsNullOrWhiteSpace(input))
+            {
+                return ""; 
+            }
+
+           
+            return input.Trim().ToUpper();
+        }
     }
 }

@@ -1,9 +1,9 @@
-﻿using MyStore;
+﻿
 using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace mystore
+namespace MyStore
 {
     public class OrderItem
     {
@@ -19,16 +19,20 @@ namespace mystore
         public Customer Customer { get; set; }
         public List<OrderItem> Items { get; set; } = new();
         public DateTime OrderDate { get; set; }
-        public double Total => Items.Sum(i => i.Subtotal);
+
+        public string? AppliedDiscountCode { get; set; }
+        public double DiscountPercentage { get; set; }
+        public double Subtotal1 => Items.Sum(i => i.Subtotal);
+        public double Total => Subtotal1 - (Subtotal1 * (DiscountPercentage / 100));
     }
     public class Orderservices
     {
-        private List<Order> ordersList = new ();
+        private List<Order> ordersList = new();
         private int idCounter = 1;
 
-        public void DisplayOrderMenu(Productservices productManager, CustomerClass customerManager)
+        public void DisplayOrderMenu(Productservices productManager, CustomerClass customerManager, DiscountServices discountManager)
         {
-            
+
             while (true)
             {
                 Console.WriteLine("\n--- ORDER MENU ---");
@@ -38,12 +42,12 @@ namespace mystore
                 Console.WriteLine("0. Back to Main Menu");
 
 
-                int choice = InputHelper.ReadInt("Select an option: ",0,3);
+                int choice = InputHelper.ReadInt("Select an option: ", 0, 3);
 
                 switch (choice)
                 {
                     case 1:
-                        CreateOrder(productManager, customerManager);
+                        CreateOrder(productManager, customerManager, discountManager);
                         break;
                     case 2:
                         ListAllOrders();
@@ -60,11 +64,11 @@ namespace mystore
                 }
             }
         }
-        private void CreateOrder(Productservices productManager1, CustomerClass customerManager1)
+        private void CreateOrder(Productservices productManager1, CustomerClass customerManager1, DiscountServices discountManager)
         {
 
-           
-            int customerId =InputHelper.ReadInt("Enter Customer ID: ");
+
+            int customerId = InputHelper.ReadInt("Enter Customer ID: ");
 
             var customer = customerManager1.GetCustomerById(customerId);
             if (customer == null)
@@ -83,7 +87,7 @@ namespace mystore
 
             while (true)
             {
-               
+
                 int productId = InputHelper.ReadInt("Enter Product ID to add (or 0 to finish adding): ");
 
                 if (productId == 0) break;
@@ -95,11 +99,11 @@ namespace mystore
                     continue;
                 }
 
-              
-                int quantity1 = InputHelper.ReadInt($"Enter quantity for '{product.Name}' (Available: {product.Quantity}): ",1, product.Quantity);
 
-               
-                
+                int quantity1 = InputHelper.ReadInt($"Enter quantity for '{product.Name}' (Available: {product.Quantity}): ", 1, product.Quantity);
+
+
+
                 OrderItem item = new OrderItem
                 {
                     Product = product,
@@ -109,30 +113,48 @@ namespace mystore
                 Console.WriteLine($"Added {quantity1} x '{product.Name}' to order.");
             }
 
- 
+
             if (newOrder.Items.Count == 0)
             {
                 Console.WriteLine("Order cancelled because no items were added.");
                 return;
             }
-
-            if (InputHelper.Confirm($"\nTotal amount is: {newOrder.Total:0.00}. Confirm order?"))
-
-                
+            Console.Write("Do you have a discount code? (leave blank to skip): ");
+            string codeInput = Console.ReadLine().Trim().ToUpper();
+            if (!string.IsNullOrEmpty(codeInput))
             {
- 
+
+                var discount = discountManager.GetActiveDiscount(codeInput);
+
+                if (discount != null)
+                {
+                    newOrder.AppliedDiscountCode = discount.Code;
+                    newOrder.DiscountPercentage = discount.Percentage;
+                    Console.WriteLine($"Success: Discount code '{discount.Code}' (-{discount.Percentage}%) applied!");
+                }
+                else
+                {
+                    Console.WriteLine("Warning: Invalid or inactive discount code. Proceeding without discount.");
+                }
+            }
+
+            if (InputHelper.Confirm($"\nTotal amount after discount is: {newOrder.Total:0.00}. Confirm order?"))
+
+
+            {
+
                 foreach (var i in newOrder.Items)
                 {
                     i.Product.Quantity -= i.Quantity;
                 }
 
                 ordersList.Add(newOrder);
-                
+
                 Console.WriteLine($"Order ID: {newOrder.Id} created successfully with today's date.");
                 return;
             }
 
-            
+
         }
 
         private void ListAllOrders()
@@ -159,7 +181,7 @@ namespace mystore
 
         private void ViewOrderDetails()
         {
-           
+
             int id = InputHelper.ReadInt("Enter Order ID to view details: ");
 
             var order = ordersList.FirstOrDefault(o => o.Id == id);
@@ -169,7 +191,7 @@ namespace mystore
                 return;
             }
 
-           
+
             Console.WriteLine("\n==========================================");
             Console.WriteLine($"                RECEIPT                  ");
             Console.WriteLine("==========================================");
@@ -184,12 +206,26 @@ namespace mystore
                 Console.WriteLine($"- {item.Product.Name} x {item.Quantity}");
                 Console.WriteLine($"  Price: {item.Product.Price:0.00} | Subtotal: {item.Subtotal:0.00}");
             }
-
             Console.WriteLine("------------------------------------------");
-            Console.WriteLine($"GRAND TOTAL: {order.Total:0.00}");
+            Console.WriteLine($"Subtotal:     {order.Subtotal1:0.00}");
+            if (!string.IsNullOrEmpty(order.AppliedDiscountCode))
+            {
+
+                double discountAmount = order.Subtotal1 * (order.DiscountPercentage / 100);
+
+
+                Console.WriteLine($"Discount:     {order.AppliedDiscountCode} (-{order.DiscountPercentage}%) -> -{discountAmount:0.00}");
+                Console.WriteLine("------------------------------------------");
+            }
+
+            Console.WriteLine($"GRAND TOTAL:  {order.Total:0.00}");
+
             Console.WriteLine("==========================================");
         }
     }
+
+
+
 }
     
 
