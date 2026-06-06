@@ -64,5 +64,21 @@ namespace MyStore
                 Console.WriteLine("Error: Please enter 'y' for Yes or 'n' for No.");
             }
         }
+        public static string ReadPhoneNumber(string prompt)
+        {
+            while (true)
+            {
+                Console.Write(prompt);
+                string input = Console.ReadLine();
+
+              
+                if (!string.IsNullOrEmpty(input) && input.All(char.IsDigit))
+                {
+                    return input; 
+                }
+
+                Console.WriteLine("Error: Phone number cannot be empty and must contain only digits.");
+            }
+        }
     }
 }

@@ -1,4 +1,5 @@
-﻿using MyStore;
+﻿using mystore;
+using MyStore;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -11,6 +12,7 @@ namespace MyStore
         public string Name { get; set; }
         public double Price { get; set; }
         public int Quantity { get; set; }
+        public Category Category { get; set; }
     }
     public class Productservices
     {
@@ -28,9 +30,10 @@ namespace MyStore
                 Console.WriteLine("1. Add product");
                 Console.WriteLine("2. List products");
                 Console.WriteLine("3. Total value");
-                Console.WriteLine("4. Manage Existing Products (Search/Update/Delete) ");
+                Console.WriteLine("4. Filter products by Category");
+                Console.WriteLine("5. Manage Existing Products (Search/Update/Delete) ");
                 Console.WriteLine("0. Back to Main Menu");
-                int choice2 = InputHelper.ReadInt("Select an option:", 0, 4);
+                int choice2 = InputHelper.ReadInt("Select an option:", 0, 5);
 
 
                 switch (choice2)
@@ -51,6 +54,9 @@ namespace MyStore
                             break;
                         }
                     case 4:
+                        FilterByCategory();
+                        break;
+                    case 5:
                         ManageMenu();
                         break;
                     case 0:
@@ -68,42 +74,54 @@ namespace MyStore
         }
         private void AddProduct()
         {
-            
             string name = InputHelper.ReadNonEmptyString("Enter product name: ");
-
             double price = InputHelper.ReadDouble("Enter product price: ");
+            int quantity = InputHelper.ReadInt("Enter product quantity: ", 0);
 
-            int quantity = InputHelper.ReadInt("Enter product quantity: ",1);
+             
+            Console.WriteLine("\nSelect a Category:");
+            var categories = (Category[])Enum.GetValues(typeof(Category)); 
+
+            for (int i = 0; i < categories.Length; i++)
+            {
+                Console.WriteLine($"{i + 1}. {categories[i]}"); 
+            }
+
+           
+            int categoryChoice = InputHelper.ReadInt("Select an option: ", 1, categories.Length);
+            Category selectedCategory = categories[categoryChoice - 1]; 
 
             Product newProduct = new Product
             {
                 Id = idCounter++,
                 Name = name,
                 Price = price,
-                Quantity = quantity
+                Quantity = quantity,
+                Category = selectedCategory 
             };
 
             productsList.Add(newProduct);
-            
-            Console.WriteLine($"Product '{name}' added successfully with ID: {newProduct.Id}");
+            Console.WriteLine($"Product '{name}' added successfully under category '{selectedCategory}' with ID: {newProduct.Id}");
         }
 
         private void ListProducts()
         {
             if (productsList.Count == 0)
             {
-                Console.WriteLine("No products found .");
+                Console.WriteLine("No products found.");
                 return;
             }
 
-            Console.WriteLine("\n" + "ID".PadRight(5) + "| " + "Name".PadRight(15) + "| " + "Price".PadRight(10) + "| " + "Quantity");
-            Console.WriteLine("-----|----------------|----------|----------");
+          
+            Console.WriteLine("\n" + "ID".PadRight(5) + "| " + "Name".PadRight(15) + "| " + "Category".PadRight(15) + "| " + "Price".PadRight(10) + "| " + "Quantity");
+            Console.WriteLine("-----|----------------|----------------|----------|----------");
 
             foreach (var prod in productsList)
             {
                 Console.WriteLine(
                     prod.Id.ToString().PadRight(5) + "| " +
                     prod.Name.PadRight(15) + "| " +
+                    prod.Category.ToString().PadRight(15) + "| " + 
                     prod.Price.ToString("0.00").PadRight(10) + "| " +
                     prod.Quantity
                 );
@@ -118,8 +136,17 @@ namespace MyStore
                 return;
             }
 
-            double totalValue = productsList.Sum(p => p.Price * p.Quantity);
-            Console.WriteLine($"\nTotal Inventory Value: {totalValue:0.00}");
+            Console.WriteLine("\n--- Inventory Value Breakdown by Category ---");
+            var categoryGroups = productsList.GroupBy(p => p.Category);
+            foreach (var group in categoryGroups)
+            {
+                double categoryTotal = group.Sum(p => p.Price * p.Quantity);
+                Console.WriteLine($"{group.Key.ToString().PadRight(15)} : {categoryTotal:0.00}");
+            }
+
+            Console.WriteLine("---------------------------------------------");
+            double grandTotal = productsList.Sum(p => p.Price * p.Quantity);
+            Console.WriteLine($"Total Store Value: {grandTotal:0.00}");
         }
         private void ManageMenu()
         {
@@ -201,7 +228,7 @@ namespace MyStore
         private void UpdateProductQuantity()
         {
             Console.Write("Enter product ID to update quantity: ");
-            int id = InputHelper.ReadInt("Enter product ID to update quantity: " , 1);
+            int id = InputHelper.ReadInt("Enter product ID to update quantity: " , 0);
 
             var prod = productsList.FirstOrDefault(p => p.Id == id);
 
@@ -211,7 +238,7 @@ namespace MyStore
                 return;
             }
 
-            int newQuantity = InputHelper.ReadInt($"Current Quantity for '{prod.Name}' is {prod.Quantity}. Enter new quantity: ",1);
+            int newQuantity = InputHelper.ReadInt($"Current Quantity for '{prod.Name}' is {prod.Quantity}. Enter new quantity: ",0);
 
             prod.Quantity = newQuantity;
             Console.WriteLine("Quantity updated successfully!");
@@ -229,8 +256,7 @@ namespace MyStore
                 return;
             }
 
-            Console.Write($"Are you sure you want to delete {prod.Name}? (y/n): ");
-            string confirm = Console.ReadLine().ToLower();
+            
 
             if (InputHelper.Confirm($"Are you sure you want to delete {prod.Name}?"))
             {
@@ -246,6 +272,43 @@ namespace MyStore
         public Product GetProductById(int id)
         {
             return productsList.FirstOrDefault(p => p.Id == id);
+        }
+
+        private void FilterByCategory()
+        {
+            Console.WriteLine("\nSelect a Category to filter by:");
+            var categories = (Category[])Enum.GetValues(typeof(Category));
+            for (int i = 0; i < categories.Length; i++)
+            {
+                Console.WriteLine($"{i + 1}. {categories[i]}");
+            }
+
+            int choice = InputHelper.ReadInt("Select an option: ", 1, categories.Length);
+            Category selectedCategory = categories[choice - 1];
+
+            
+            var filteredList = productsList.Where(p => p.Category == selectedCategory).ToList();
+
+            if (filteredList.Count == 0)
+            {
+                Console.WriteLine($"\nNo products found under category: {selectedCategory}");
+                return;
+            }
+
+          
+            Console.WriteLine("\n" + "ID".PadRight(5) + "| " + "Name".PadRight(15) + "| " + "Category".PadRight(15) + "| " + "Price".PadRight(10) + "| " + "Quantity");
+            Console.WriteLine("-----|----------------|----------------|----------|----------");
+
+            foreach (var prod in filteredList)
+            {
+                Console.WriteLine(
+                    prod.Id.ToString().PadRight(5) + "| " +
+                    prod.Name.PadRight(15) + "| " +
+                    prod.Category.ToString().PadRight(15) + "| " +
+                    prod.Price.ToString("0.00").PadRight(10) + "| " +
+                    prod.Quantity
+                );
+            }
         }
     }
 }

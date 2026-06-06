@@ -58,14 +58,8 @@ namespace mystore
 
            
 
-            Console.Write("Enter phone number: ");
-            string phone = Console.ReadLine();
-
-            if (string.IsNullOrEmpty(phone) || !phone.All(char.IsDigit))
-            {
-                Console.WriteLine("Error: Phone number must contain only digits.");
-                return;
-            }
+            
+            string phone = InputHelper.ReadPhoneNumber("Enter phone number: ");
 
        
             bool isDuplicate = customersList.Any(c => c.PhoneNumber == phone);
