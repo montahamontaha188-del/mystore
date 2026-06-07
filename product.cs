@@ -17,7 +17,7 @@ namespace MyStore
     public class Productservices
     {
         private List<Product> productsList = new();
-        private int idCounter = 1;
+        private int idCounter = 0;
 
 
         public void displayproductmenue()
@@ -77,8 +77,9 @@ namespace MyStore
             string name = InputHelper.ReadNonEmptyString("Enter product name: ");
             double price = InputHelper.ReadDouble("Enter product price: ");
             int quantity = InputHelper.ReadInt("Enter product quantity: ", 0);
+            
 
-             
+
             Console.WriteLine("\nSelect a Category:");
             var categories = (Category[])Enum.GetValues(typeof(Category)); 
 
@@ -89,11 +90,12 @@ namespace MyStore
 
            
             int categoryChoice = InputHelper.ReadInt("Select an option: ", 1, categories.Length);
-            Category selectedCategory = categories[categoryChoice - 1]; 
+            Category selectedCategory = categories[categoryChoice - 1];
+           
 
             Product newProduct = new Product
             {
-                Id = idCounter++,
+                Id = idCounter ++,
                 Name = name,
                 Price = price,
                 Quantity = quantity,
@@ -193,8 +195,7 @@ namespace MyStore
         }
         private void SearchProductByName()
         {
-            Console.Write("Enter product name to search: ");
-            string searchName = Console.ReadLine();
+            string searchName = InputHelper.ReadNonEmptyString("Enter product name to search: ");
 
             var results = productsList.Where(n => n.Name.Contains(searchName, StringComparison.OrdinalIgnoreCase)).ToList();
 
@@ -213,7 +214,7 @@ namespace MyStore
         private void UpdateProductPrice()
         {
            
-            int id = InputHelper.ReadInt("Enter product ID to update price: ",0 , idCounter-1) ;
+            int id = InputHelper.ReadInt("Enter product ID to update price: ",1, idCounter-1) ;
 
             var prod = productsList.FirstOrDefault(p => p.Id == id);
 
@@ -233,7 +234,7 @@ namespace MyStore
         private void UpdateProductQuantity()
         {
           
-            int id = InputHelper.ReadInt("Enter product ID to update quantity: " , 0);
+            int id = InputHelper.ReadInt("Enter product ID to update quantity: " , 1, idCounter - 1);
 
             var prod = productsList.FirstOrDefault(p => p.Id == id);
 
@@ -253,30 +254,36 @@ namespace MyStore
 
         private void DeleteProductById()
         {
-            int id = InputHelper.ReadInt("Enter product ID to delete: ", 1);
+            int id = InputHelper.ReadInt("Enter product ID to delete: ", 1, idCounter-1 );
 
             var prod = productsList.FirstOrDefault(p => p.Id == id);
 
             if (prod == null)
             {
                 throw new BusinessException("Error: Product ID not found.");
-                 
             }
-
-            
-
             if (InputHelper.Confirm($"Are you sure you want to delete {prod.Name}?"))
             {
                 productsList.Remove(prod);
                 Console.ForegroundColor = ConsoleColor.Green;
                 Console.WriteLine("Product deleted successfully.");
                 Console.ResetColor();
+              
+                for (int i = 0; i < productsList.Count; i++)
+                {
+                    productsList[i].Id = i + 1;
+                }
+
+               
+                this.UpdateIdCounter();
+
             }
             else
             {
                 Console.WriteLine("Deletion cancelled.");
             }
-          
+            
+
         }
         public Product GetProductById(int id)
         {
@@ -322,6 +329,21 @@ namespace MyStore
         public List<Product> GetProductsList()
         {
             return productsList;
+        }
+        public void SetProductsList(List<Product> list)
+        {
+            productsList = list;
+        }
+        public void UpdateIdCounter()
+        {
+            if (productsList != null && productsList.Count > 0)
+            {
+                idCounter = productsList.Max(p => p.Id) + 1;
+            }
+            else
+            {
+                idCounter = 1;
+            }
         }
     }
 

@@ -233,6 +233,25 @@ namespace MyStore
         {
             return ordersList;
         }
+        
+       
+        public void SetOrdersList(List<Order> list)
+        {
+            ordersList = list;
+        }
+
+      
+        public void UpdateIdCounter()
+        {
+            if (ordersList != null && ordersList.Count > 0)
+            {
+                idCounter = ordersList.Max(o => o.Id) + 1;
+            }
+            else
+            {
+                idCounter = 1;
+            }
+        }
     }
 
 

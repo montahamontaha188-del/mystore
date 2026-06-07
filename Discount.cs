@@ -111,5 +111,29 @@ namespace MyStore
         {
             return discountsList.FirstOrDefault(d => d.Code == code && d.IsActive);
         }
+
+        public List<Discount> GetDiscountsList()
+        {
+            return discountsList;
+        }
+
+        
+        public void SetDiscountsList(List<Discount> list)
+        {
+            discountsList = list;
+        }
+
+  
+        public void UpdateIdCounter()
+        {
+            if (discountsList != null && discountsList.Count > 0)
+            {
+                idCounter = discountsList.Max(d => d.Id) + 1;
+            }
+            else
+            {
+                idCounter = 1;
+            }
+        }
     }
 }
