@@ -122,30 +122,5 @@ namespace MyStore
         {
             return customersList.FirstOrDefault(c => c.Id == id);
         }
-        public List<Customer> GetCustomersList()
-        {
-            return customersList;
-        }
-
-      
-        public void SetCustomersList(List<Customer> list)
-        {
-            customersList = list;
-        }
-
-    
-        public void UpdateIdCounter()
-        {
-            if (customersList != null && customersList.Count > 0)
-            {
-                idCounter = customersList.Max(c => c.Id) + 1;
-            }
-            else
-            {
-                idCounter = 1;
-            }
-        }
-
-
     }
 }

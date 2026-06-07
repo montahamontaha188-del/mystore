@@ -17,7 +17,7 @@ namespace MyStore
     public class Productservices
     {
         private List<Product> productsList = new();
-        private int idCounter = 0;
+        private int idCounter = 1;
 
 
         public void displayproductmenue()
@@ -275,7 +275,7 @@ namespace MyStore
                 }
 
                
-                this.UpdateIdCounter();
+              
 
             }
             else
@@ -302,16 +302,16 @@ namespace MyStore
             int choice = InputHelper.ReadInt("Select an option: ", 1, categories.Length);
             Category selectedCategory = categories[choice - 1];
 
-            
+
             var filteredList = productsList.Where(p => p.Category == selectedCategory).ToList();
 
             if (filteredList.Count == 0)
             {
                 throw new BusinessException($"\nNo products found under category: {selectedCategory}");
-                
+
             }
 
-          
+
             Console.WriteLine("\n" + "ID".PadRight(5) + "| " + "Name".PadRight(15) + "| " + "Category".PadRight(15) + "| " + "Price".PadRight(10) + "| " + "Quantity");
             Console.WriteLine("-----|----------------|----------------|----------|----------");
 
@@ -326,26 +326,13 @@ namespace MyStore
                 );
             }
         }
-        public List<Product> GetProductsList()
+            public List<Product> GetProductsList()
         {
             return productsList;
         }
-        public void SetProductsList(List<Product> list)
-        {
-            productsList = list;
-        }
-        public void UpdateIdCounter()
-        {
-            if (productsList != null && productsList.Count > 0)
-            {
-                idCounter = productsList.Max(p => p.Id) + 1;
-            }
-            else
-            {
-                idCounter = 1;
-            }
-        }
+    }
+        
     }
 
-}
+
 

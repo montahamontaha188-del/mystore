@@ -1,5 +1,5 @@
 ﻿
-using MyStore.MyStore;
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -29,36 +29,9 @@ namespace MyStore
             Orderservices order1 = new Orderservices();
             DiscountServices discount1 = new DiscountServices();
             ReportServices report1 = new ReportServices();
-            DataStore store = new DataStore();
+        
 
-            try
-            {
-                List<Product> savedProducts = store.LoadProducts();
-                product1.SetProductsList(savedProducts);
-                product1.UpdateIdCounter(); 
-
-                List<Customer> savedCustomers = store.LoadCustomers();
-                customer1.SetCustomersList(savedCustomers);
-                customer1.UpdateIdCounter();
-                List<Order> savedOrders = store.LoadOrders();
-
-                order1.SetOrdersList(savedOrders);
-                order1.UpdateIdCounter();
-
-
-                List<Discount> savedDiscounts = store.LoadDiscounts();
-                discount1.SetDiscountsList(savedDiscounts);
-                discount1.UpdateIdCounter();
-
-                if (savedProducts.Count > 0 || savedCustomers.Count > 0 || savedOrders.Count > 0 || savedDiscounts.Count > 0)
-                {
-                    InputHelper.WriteLineWithColor("Inventory data loaded successfully from JSON storage.", ConsoleColor.Cyan);
-                }
-            }
-            catch (Exception ex)
-            {
-                InputHelper.WriteLineWithColor("Initialization Warning: " + ex.Message, ConsoleColor.Yellow);
-            }
+           
 
             while (true)
             {
@@ -73,12 +46,8 @@ namespace MyStore
                         case 4: discount1.DisplayDiscountMenu(); break;
                         case 5: report1.DisplayReportMenu(product1, order1); break;
                         case 0:
-                            Console.WriteLine("Saving store data to JSON...");
-                            store.SaveProducts(product1.GetProductsList());
-                            store.SaveCustomers(customer1.GetCustomersList());
-                            store.SaveOrders(order1.GetOrdersList());
-                            store.SaveDiscounts(discount1.GetDiscountsList());
-                            Console.WriteLine("Exiting program... Goodbye!");
+                            Console.WriteLine("return to the main menu..");
+                           
                             return;
                         default: Console.WriteLine("Invalid option. Please try again."); break;
                     }
