@@ -63,8 +63,8 @@ namespace MyStore
 
             if (!topProducts.Any())
             {
-                Console.WriteLine("No sales data available yet.");
-                return;
+                throw new BusinessException("No sales data available yet.");
+                
             }
 
             int rank = 1;
@@ -93,8 +93,8 @@ namespace MyStore
 
             if (!topCustomers.Any())
             {
-                Console.WriteLine("No orders data available yet.");
-                return;
+                throw new BusinessException("No orders data available yet.");
+               
             }
 
             int rank = 1;

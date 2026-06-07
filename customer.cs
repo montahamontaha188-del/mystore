@@ -53,20 +53,16 @@ namespace MyStore
         }
         private void AddCustomer()
         {
-            
+             
             string name = InputHelper.ReadNonEmptyString("Enter customer name: ");
-
-           
-
-            
             string phone = InputHelper.ReadPhoneNumber("Enter phone number: ");
 
        
             bool isDuplicate = customersList.Any(c => c.PhoneNumber == phone);
             if (isDuplicate)
             {
-                Console.WriteLine("Error: A customer with this phone number already exists.");
-                return;
+                    throw new BusinessException("Error: A customer with this phone number already exists.");
+               
             }
 
     
@@ -78,14 +74,17 @@ namespace MyStore
             };
 
             customersList.Add(newCustomer);
+            Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine($"Customer '{name}' added successfully with ID: {newCustomer.Id}");
+            Console.ResetColor();
+
         }
         private void ListCustomers()
         {
   
             if (customersList.Count == 0)
             {
-                Console.WriteLine("No customers found.");
+                throw new BusinessException("No customers found.");
                 return;
             }
 
@@ -105,15 +104,12 @@ namespace MyStore
         {
 
             string searchName = InputHelper.ReadNonEmptyString("Enter name to search: ");
-
-          
-
             var results = customersList.Where(c => c.Name.Contains(searchName, StringComparison.OrdinalIgnoreCase)).ToList();
 
             if (results.Count == 0)
             {
-                Console.WriteLine("No customers found matching that name.");
-                return;
+                throw new BusinessException("No customers found matching that name.");
+             
             }
 
             Console.WriteLine("\n--- Search Results ---");

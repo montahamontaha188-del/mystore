@@ -8,7 +8,7 @@ namespace MyStore
     {
         public static int ReadInt(string prompt, int min = int.MinValue, int max = int.MaxValue)
         {
-            
+
             while (true)
             {
                 if (!string.IsNullOrEmpty(prompt)) Console.Write(prompt);
@@ -22,9 +22,9 @@ namespace MyStore
             }
         }
 
-        public static double ReadDouble(string prompt, double min=0 )
+        public static double ReadDouble(string prompt, double min = 0)
         {
-            
+
             while (true)
             {
                 if (!string.IsNullOrEmpty(prompt)) Console.Write(prompt);
@@ -73,10 +73,10 @@ namespace MyStore
                 Console.Write(prompt);
                 string input = Console.ReadLine();
 
-              
+
                 if (!string.IsNullOrEmpty(input) && input.All(char.IsDigit))
                 {
-                    return input; 
+                    return input;
                 }
 
                 Console.WriteLine("Error: Phone number cannot be empty and must contain only digits.");
@@ -87,31 +87,38 @@ namespace MyStore
             if (!string.IsNullOrEmpty(prompt)) Console.Write(prompt);
             string input = Console.ReadLine();
 
-         
+
             if (string.IsNullOrWhiteSpace(input))
             {
-                return ""; 
+                return "";
             }
 
-           
+
             return input.Trim().ToUpper();
         }
-         
+
 
         public static DateTime ReadDate(string prompt)
         {
-        while (true)
-        {
-            Console.Write(prompt);
-            string dateInput = Console.ReadLine();
-
-            if (DateTime.TryParseExact(dateInput, "dd-MM-yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime validDate))
+            while (true)
             {
-                return validDate; 
-            }
+                Console.Write(prompt);
+                string dateInput = Console.ReadLine();
 
-            Console.WriteLine("Error: Invalid date format. Please use dd-MM-yyyy (e.g., 06-06-2026).");
+                if (DateTime.TryParseExact(dateInput, "dd-MM-yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime validDate))
+                {
+                    return validDate;
+                }
+
+                Console.WriteLine("Error: Invalid date format. Please use dd-MM-yyyy (e.g., 06-06-2026).");
+            }
         }
+        public static void WriteLineWithColor(string message, ConsoleColor color)
+        {
+            Console.ForegroundColor = color;
+            Console.WriteLine(message);
+            Console.ResetColor();
         }
-}
+    }
+
 }

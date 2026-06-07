@@ -73,8 +73,8 @@ namespace MyStore
             var customer = customerManager1.GetCustomerById(customerId);
             if (customer == null)
             {
-                Console.WriteLine("Error: Customer not found!");
-                return;
+                throw new BusinessException("Error: Customer not found!");
+             
             }
 
             Order newOrder = new Order
@@ -87,37 +87,42 @@ namespace MyStore
 
             while (true)
             {
+                try {
+                    int productId = InputHelper.ReadInt("Enter Product ID to add (or 0 to finish adding): ");
 
-                int productId = InputHelper.ReadInt("Enter Product ID to add (or 0 to finish adding): ");
+                    if (productId == 0) break;
 
-                if (productId == 0) break;
+                    var product = productManager1.GetProductById(productId);
+                    if (product == null)
+                    {
+                        throw new BusinessException("Error: Product not found!");
 
-                var product = productManager1.GetProductById(productId);
-                if (product == null)
-                {
-                    Console.WriteLine("Error: Product not found!");
-                    continue;
+                    }
+
+
+                    int quantity1 = InputHelper.ReadInt($"Enter quantity for '{product.Name}' (Available: {product.Quantity}): ", 1, product.Quantity);
+
+
+
+                    OrderItem item = new OrderItem
+                    {
+                        Product = product,
+                        Quantity = quantity1
+                    };
+                    newOrder.Items.Add(item);
+                    Console.WriteLine($"Added {quantity1} x '{product.Name}' to order.");
                 }
-
-
-                int quantity1 = InputHelper.ReadInt($"Enter quantity for '{product.Name}' (Available: {product.Quantity}): ", 1, product.Quantity);
-
-
-
-                OrderItem item = new OrderItem
+                catch (BusinessException ex)
                 {
-                    Product = product,
-                    Quantity = quantity1
-                };
-                newOrder.Items.Add(item);
-                Console.WriteLine($"Added {quantity1} x '{product.Name}' to order.");
-            }
 
+                    InputHelper.WriteLineWithColor($"warning: {ex.Message}", ConsoleColor.Yellow);
+                }
+            }
 
             if (newOrder.Items.Count == 0)
             {
-                Console.WriteLine("Order cancelled because no items were added.");
-                return;
+                throw new BusinessException("Order cancelled because no items were added.");
+              
             }
             Console.Write("Do you have a discount code? (leave blank to skip): ");
             string codeInput = Console.ReadLine().Trim().ToUpper();
@@ -130,11 +135,13 @@ namespace MyStore
                 {
                     newOrder.AppliedDiscountCode = discount.Code;
                     newOrder.DiscountPercentage = discount.Percentage;
+                    Console.ForegroundColor = ConsoleColor.Green;
                     Console.WriteLine($"Success: Discount code '{discount.Code}' (-{discount.Percentage}%) applied!");
+                    Console.ResetColor();
                 }
                 else
                 {
-                    Console.WriteLine("Warning: Invalid or inactive discount code. Proceeding without discount.");
+                    throw new BusinessException("Warning: Invalid or inactive discount code. Proceeding without discount.");
                 }
             }
 
@@ -161,8 +168,8 @@ namespace MyStore
         {
             if (ordersList.Count == 0)
             {
-                Console.WriteLine("No orders found.");
-                return;
+                throw new BusinessException("No orders found.");
+               
             }
 
             Console.WriteLine("\n" + "ID".PadRight(5) + "| " + "Customer".PadRight(20) + "| " + "Date".PadRight(12) + "| " + "Total");
@@ -187,8 +194,8 @@ namespace MyStore
             var order = ordersList.FirstOrDefault(o => o.Id == id);
             if (order == null)
             {
-                Console.WriteLine("Error: Order ID not found.");
-                return;
+                throw new BusinessException("Error: Order ID not found.");
+             
             }
 
 

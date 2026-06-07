@@ -101,15 +101,18 @@ namespace MyStore
             };
 
             productsList.Add(newProduct);
+            //addproduct(newproduct)
+            Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine($"Product '{name}' added successfully under category '{selectedCategory}' with ID: {newProduct.Id}");
+            Console.ResetColor();
         }
 
         private void ListProducts()
         {
             if (productsList.Count == 0)
             {
-                Console.WriteLine("No products found.");
-                return;
+                throw new BusinessException("No products found.");
+               
             }
 
           
@@ -132,8 +135,8 @@ namespace MyStore
         {
             if (productsList.Count == 0)
             {
-                Console.WriteLine("Inventory is empty. Total Value: 0.00");
-                return;
+                throw new BusinessException("Inventory is empty. Total Value: 0.00");
+              
             }
 
             Console.WriteLine("\n--- Inventory Value Breakdown by Category ---");
@@ -197,8 +200,8 @@ namespace MyStore
 
             if (results.Count == 0)
             {
-                Console.WriteLine("Error: No products found matching that name.");
-                return;
+                throw new BusinessException("Error: No products found matching that name.");
+              
             }
 
             Console.WriteLine("\n--- Search Results ---");
@@ -210,38 +213,42 @@ namespace MyStore
         private void UpdateProductPrice()
         {
            
-            int id = InputHelper.ReadInt("Enter product ID to update price: ") ;
+            int id = InputHelper.ReadInt("Enter product ID to update price: ",0 , idCounter-1) ;
 
             var prod = productsList.FirstOrDefault(p => p.Id == id);
 
             if (prod == null)
             {
-                Console.WriteLine("Error: Product ID not found.");
-                return;
+                throw new BusinessException("Error: Product ID not found.");
+              
             }
 
             double newPrice = InputHelper.ReadDouble($"Current Price for '{prod.Name}' is {prod.Price:0.00}. Enter new price: ",0.01);
 
             prod.Price = newPrice;
+            Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("Price updated successfully!");
+            Console.ResetColor();
         }
         private void UpdateProductQuantity()
         {
-            Console.Write("Enter product ID to update quantity: ");
+          
             int id = InputHelper.ReadInt("Enter product ID to update quantity: " , 0);
 
             var prod = productsList.FirstOrDefault(p => p.Id == id);
 
             if (prod == null)
             {
-                Console.WriteLine("Error: Product ID not found.");
-                return;
+                throw new BusinessException("Error: Product ID not found.");
+             
             }
 
             int newQuantity = InputHelper.ReadInt($"Current Quantity for '{prod.Name}' is {prod.Quantity}. Enter new quantity: ",0);
 
             prod.Quantity = newQuantity;
+            Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("Quantity updated successfully!");
+            Console.ResetColor();
         }
 
         private void DeleteProductById()
@@ -252,8 +259,8 @@ namespace MyStore
 
             if (prod == null)
             {
-                Console.WriteLine("Error: Product ID not found.");
-                return;
+                throw new BusinessException("Error: Product ID not found.");
+                 
             }
 
             
@@ -261,7 +268,9 @@ namespace MyStore
             if (InputHelper.Confirm($"Are you sure you want to delete {prod.Name}?"))
             {
                 productsList.Remove(prod);
+                Console.ForegroundColor = ConsoleColor.Green;
                 Console.WriteLine("Product deleted successfully.");
+                Console.ResetColor();
             }
             else
             {
@@ -291,8 +300,8 @@ namespace MyStore
 
             if (filteredList.Count == 0)
             {
-                Console.WriteLine($"\nNo products found under category: {selectedCategory}");
-                return;
+                throw new BusinessException($"\nNo products found under category: {selectedCategory}");
+                
             }
 
           
@@ -315,5 +324,6 @@ namespace MyStore
             return productsList;
         }
     }
+
 }
 

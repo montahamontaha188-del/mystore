@@ -46,15 +46,15 @@ namespace MyStore
           
             if (discountsList.Any(d => d.Code == code))
             {
-                Console.WriteLine("Error: This discount code already exists.");
-                return;
+                throw new BusinessException("Error: This discount code already exists.");
+              
             }
 
             double percentage = InputHelper.ReadDouble("Enter discount percentage (1-100): ", 0.01);
             if (percentage > 100)
             {
-                Console.WriteLine("Error: Percentage cannot exceed 100%.");
-                return;
+                throw new BusinessException("Error: Percentage cannot exceed 100%.");
+               
             }
 
             Discount newDiscount = new Discount
@@ -66,15 +66,17 @@ namespace MyStore
             };
 
             discountsList.Add(newDiscount);
+            Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine($"Discount code '{code}' ({percentage}%) added successfully.");
+            Console.ResetColor();
         }
 
         private void ListDiscounts()
         {
             if (discountsList.Count == 0)
             {
-                Console.WriteLine("No discount codes found.");
-                return;
+                throw new BusinessException("No discount codes found.");
+               
             }
 
             Console.WriteLine("\n" + "ID".PadRight(5) + "| " + "Code".PadRight(15) + "| " + "Percentage".PadRight(12) + "| " + "Status");
@@ -93,13 +95,15 @@ namespace MyStore
 
             if (discount == null)
             {
-                Console.WriteLine("Error: Discount code not found.");
-                return;
+                throw new BusinessException("Error: Discount code not found.");
+             
             }
 
             discount.IsActive = !discount.IsActive; 
             string status = discount.IsActive ? "Activated" : "Deactivated";
+            Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine($"Discount code '{code}' has been {status} successfully.");
+            Console.ResetColor();
         }
 
         
