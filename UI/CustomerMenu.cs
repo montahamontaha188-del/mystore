@@ -7,7 +7,7 @@ namespace MyStore
     {
         private readonly ICustomerService _customerService;
 
-        // حقن خدمة الزبائن عبر الدالة البنائية
+ 
         public CustomerMenu(ICustomerService customerService)
         {
             _customerService = customerService;
@@ -42,7 +42,7 @@ namespace MyStore
             string name = InputHelper.ReadNonEmptyString("Enter customer name: ");
             string phone = InputHelper.ReadPhoneNumber("Enter phone number: ");
 
-            // التحقق من تكرار الرقم عبر الخدمة
+  
             if (_customerService.IsPhoneNumberExists(phone))
             {
                 throw new BusinessException("Error: A customer with this phone number already exists.");

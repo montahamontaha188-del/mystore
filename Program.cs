@@ -20,23 +20,21 @@ namespace MyStore
 
         static void Main(string[] args)
         {
-            // === 1. إعداد طبقة المنتجات ===
+          
             IProductService productService = new ProductService();
             ProductMenu productMenu = new ProductMenu(productService);
-
-            // === 2. إعداد طبقة الزبائن ===
+ 
             ICustomerService customerService = new CustomerService();
             CustomerMenu customerMenu = new CustomerMenu(customerService);
 
-            // === 3. إعداد طبقة التخفيضات ===
+     
             IDiscountService discountService = new DiscountService();
             DiscountMenu discountMenu = new DiscountMenu(discountService);
-
-            // === 4. إعداد طبقة الطلبات ===
+ 
             IOrderService orderService = new OrderService();
             OrderMenu orderMenu = new OrderMenu(orderService, productService, customerService, discountService);
 
-            // === 5. إعداد طبقة التقارير ===
+           
             IReportService reportService = new ReportService();
             ReportMenu reportMenu = new ReportMenu(reportService, productService, orderService);
 
@@ -66,7 +64,7 @@ namespace MyStore
                             break;
 
                         case 5:
-                            // استدعاء شاشة التقارير الاحترافية الجديدة
+                           
                             reportMenu.DisplayReportMenu();
                             break;
 

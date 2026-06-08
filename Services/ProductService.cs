@@ -61,7 +61,7 @@ namespace MyStore
 
             productsList.Remove(prod);
 
-            // إعادة ترتيب المعرفات تلقائياً بعد الحذف لضمان التسلسل
+         
             for (int i = 0; i < productsList.Count; i++)
             {
                 productsList[i].Id = i + 1;

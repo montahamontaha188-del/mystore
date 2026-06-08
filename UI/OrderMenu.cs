@@ -11,7 +11,7 @@ namespace MyStore
         private readonly ICustomerService _customerService;
         private readonly IDiscountService _discountService;
 
-        // الدالة البنائية الصحيحة لحقن الخدمات الأربعة
+ 
         public OrderMenu(
             IOrderService orderService,
             IProductService productService,
@@ -114,7 +114,7 @@ namespace MyStore
 
             if (InputHelper.Confirm($"\nTotal amount after discount is: {newOrder.Total:0.00}. Confirm order?"))
             {
-                // خصم الكميات من المخزن الفعلي عبر الخدمة
+    
                 foreach (var item in newOrder.Items)
                 {
                     _productService.UpdateProductQuantity(item.Product.Id, item.Product.Quantity - item.Quantity);

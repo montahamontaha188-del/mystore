@@ -6,8 +6,7 @@ namespace MyStore
     public class ProductMenu
     {
         private readonly IProductService _productService;
-
-        // حقن الخدمة عبر الدالة البنائية لكي نتمكن من استخدام دالاتها
+ 
         public ProductMenu(IProductService productService)
         {
             _productService = productService;
@@ -51,7 +50,7 @@ namespace MyStore
             int categoryChoice = InputHelper.ReadInt("Select an option: ", 1, categories.Length);
             Category selectedCategory = categories[categoryChoice - 1];
 
-            // نجهز كائن المنتج السادة
+  
             Product newProduct = new Product
             {
                 Name = name,
@@ -60,7 +59,7 @@ namespace MyStore
                 Category = selectedCategory
             };
 
-            // نرسل المنتج الجاهز للخدمة لكي تحفظه في الذاكرة وتمنحه المعرف التلقائي
+ 
             _productService.AddProduct(newProduct);
 
             Console.ForegroundColor = ConsoleColor.Green;
@@ -70,7 +69,7 @@ namespace MyStore
 
         private void ListProductsUI()
         {
-            // نطلب القائمة من الخدمة ونحولها مجدداً لعرضها
+          
             var products = _productService.GetAllProducts().ToList();
             if (products.Count == 0)
             {
