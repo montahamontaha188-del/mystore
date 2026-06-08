@@ -1,21 +1,16 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
+using System.Linq;
 
 namespace MyStore
 {
-    public class Discount
+    public class DiscountMenu
     {
-        public int Id { get; set; }
-        public string Code { get; set; }
-        public double Percentage { get; set; }
-        public bool IsActive { get; set; }
-    }
-    public class DiscountServices
-    {
-        private List<Discount> discountsList = new();
-        private int idCounter = 1;
+        private readonly IDiscountService _discountService;
 
+        public DiscountMenu(IDiscountService discountService)
+        {
+            _discountService = discountService;
+        }
 
         public void DisplayDiscountMenu()
         {
@@ -31,88 +26,75 @@ namespace MyStore
 
                 switch (choice)
                 {
-                    case 1: AddDiscount(); break;
-                    case 2: ListDiscounts(); break;
-                    case 3: ToggleDiscountStatus(); break;
+                    case 1: AddDiscountUI(); break;
+                    case 2: ListDiscountsUI(); break;
+                    case 3: ToggleDiscountStatusUI(); break;
                     case 0: return;
                 }
             }
         }
 
-        private void AddDiscount()
+        private void AddDiscountUI()
         {
             string code = InputHelper.ReadNonEmptyString("Enter discount code (e.g., SUMMER10): ").ToUpper();
 
-
-            if (discountsList.Any(d => d.Code == code))
+            if (_discountService.IsCodeExists(code))
             {
                 throw new BusinessException("Error: This discount code already exists.");
-
             }
 
             double percentage = InputHelper.ReadDouble("Enter discount percentage (1-100): ", 0.01);
             if (percentage > 100)
             {
                 throw new BusinessException("Error: Percentage cannot exceed 100%.");
-
             }
 
             Discount newDiscount = new Discount
             {
-                Id = idCounter++,
                 Code = code,
-                Percentage = percentage,
-                IsActive = true
+                Percentage = percentage
             };
 
-            discountsList.Add(newDiscount);
+            _discountService.AddDiscount(newDiscount);
+
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine($"Discount code '{code}' ({percentage}%) added successfully.");
             Console.ResetColor();
         }
 
-        private void ListDiscounts()
+        private void ListDiscountsUI()
         {
-            if (discountsList.Count == 0)
+            var discounts = _discountService.GetAllDiscounts().ToList();
+            if (discounts.Count == 0)
             {
                 throw new BusinessException("No discount codes found.");
-
             }
 
             Console.WriteLine("\n" + "ID".PadRight(5) + "| " + "Code".PadRight(15) + "| " + "Percentage".PadRight(12) + "| " + "Status");
             Console.WriteLine("-----|----------------|------------|----------");
-            foreach (var d in discountsList)
+            foreach (var d in discounts)
             {
                 string status = d.IsActive ? "Active" : "Inactive";
                 Console.WriteLine($"{d.Id.ToString().PadRight(5)}| {d.Code.PadRight(15)}| {d.Percentage.ToString() + "%".PadRight(11)}| {status}");
             }
         }
 
-        private void ToggleDiscountStatus()
+        private void ToggleDiscountStatusUI()
         {
             string code = InputHelper.ReadNonEmptyString("Enter discount code to activate/deactivate: ").ToUpper();
-            var discount = discountsList.FirstOrDefault(d => d.Code == code);
+            var discount = _discountService.GetDiscountByCode(code);
 
             if (discount == null)
             {
                 throw new BusinessException("Error: Discount code not found.");
-
             }
 
             discount.IsActive = !discount.IsActive;
             string status = discount.IsActive ? "Activated" : "Deactivated";
+
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine($"Discount code '{code}' has been {status} successfully.");
             Console.ResetColor();
         }
-        public Discount GetActiveDiscount(string code)
-        {
-            return discountsList.FirstOrDefault(d => d.Code == code && d.IsActive);
-        }
-
-
-
-
     }
 }
-
