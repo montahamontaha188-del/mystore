@@ -64,15 +64,12 @@ namespace MyStore
                             break;
 
                         case 5:
-                           
-                            reportMenu.DisplayReportMenu();
+                             reportMenu.DisplayReportMenu();
                             break;
-
-                        case 0:
+                         case 0:
                             Console.WriteLine("Exiting the system.. Goodbye!");
                             return;
-
-                        default:
+                         default:
                             Console.WriteLine("Invalid option. Please try again.");
                             break;
                     }

@@ -6,7 +6,6 @@ namespace MyStore
     public class ProductMenu
     {
         private readonly IProductService _productService;
- 
         public ProductMenu(IProductService productService)
         {
             _productService = productService;
@@ -66,8 +65,7 @@ namespace MyStore
             Console.WriteLine($"Product '{name}' added successfully under category '{selectedCategory}'.");
             Console.ResetColor();
         }
-
-        private void ListProductsUI()
+         private void ListProductsUI()
         {
           
             var products = _productService.GetAllProducts().ToList();
