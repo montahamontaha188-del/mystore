@@ -19,15 +19,18 @@ namespace MyStore
                 Console.WriteLine("1. Add product");
                 Console.WriteLine("2. List products");
                 Console.WriteLine("3. Total value");
+                Console.WriteLine("4. ManageMenu");
                 Console.WriteLine("0. Back to Main Menu");
+       
 
-                int choice = InputHelper.ReadInt("Select an option:", 0, 3);
+                int choice = InputHelper.ReadInt("Select an option:", 0, 4);
 
                 switch (choice)
                 {
                     case 1: AddProductUI(); break;
                     case 2: ListProductsUI(); break;
                     case 3: ShowTotalValueUI(); break;
+                    case 4: ManageMenu(); break;
                     case 0: return;
                 }
             }
@@ -100,5 +103,68 @@ namespace MyStore
             Console.WriteLine("---------------------------------------------");
             Console.WriteLine($"Total Store Value: {_productService.GetGrandTotalValue():0.00}");
         }
+        private void ManageMenu()
+        {
+            while (true)
+            {
+                Console.WriteLine("\n--- PRODUCT MANAGEMENT ---");
+                Console.WriteLine("1. Search product by name");
+                Console.WriteLine("2. Update price");
+                Console.WriteLine("3. Update quantity");
+                Console.WriteLine("4. Delete product");
+                Console.WriteLine("0. Back");
+                ListProductsUI();
+                int choice = InputHelper.ReadInt("Select: ", 0, 4);
+                
+                switch (choice)
+                {
+                    case 1: SearchProductByName(); break;
+                    case 2: UpdateProductPrice(); break;
+                    case 3: UpdateProductQuantity(); break;
+                    case 4: DeleteProductById(); break;
+               
+                    case 0: return;
+                }
+            }
+        }
+     
+        private void SearchProductByName()
+        {
+            string searchName = InputHelper.ReadNonEmptyString("Enter product name: ");
+            var results = _productService.SearchProductsByName(searchName).ToList();
+
+            if (results.Count == 0)
+                throw new BusinessException("No products found.");
+
+            foreach (var prod in results)
+                Console.WriteLine($"ID: {prod.Id} | Name: {prod.Name} | Price: {prod.Price}");
+        }
+       
+
+        private void UpdateProductPrice()
+        {
+            int id = InputHelper.ReadInt("Enter ID to update price: ", 1, int.MaxValue);
+            double newPrice = InputHelper.ReadDouble("Enter new price: ", 0.01);
+            _productService.UpdateProductPrice(id, newPrice);
+            Console.WriteLine("Updated successfully!");
+        }
+
+        private void UpdateProductQuantity()
+        {
+            int id = InputHelper.ReadInt("Enter ID to update quantity: ", 1, int.MaxValue);
+            int newQty = InputHelper.ReadInt("Enter new quantity: ", 0);
+            _productService.UpdateProductQuantity(id, newQty);
+            Console.WriteLine("Updated successfully!");
+        }
+
+        private void DeleteProductById()
+        {
+            int id = InputHelper.ReadInt("Enter ID to delete: ", 1, int.MaxValue);
+            _productService.DeleteProduct(id);
+            Console.WriteLine("Deleted successfully!");
+        }
+
+
+        
     }
 }

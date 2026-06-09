@@ -21,21 +21,21 @@ namespace MyStore
         static void Main(string[] args)
         {
           
-            IProductService productService = new ProductService();
+            IProductService productService = new SqlProductService();
             ProductMenu productMenu = new ProductMenu(productService);
  
-            ICustomerService customerService = new CustomerService();
+            ICustomerService customerService = new SqlCustomerService();
             CustomerMenu customerMenu = new CustomerMenu(customerService);
 
      
-            IDiscountService discountService = new DiscountService();
+            IDiscountService discountService = new SqlDiscountService();
             DiscountMenu discountMenu = new DiscountMenu(discountService);
  
-            IOrderService orderService = new OrderService();
+            IOrderService orderService = new SqlOrderService();
             OrderMenu orderMenu = new OrderMenu(orderService, productService, customerService, discountService);
 
            
-            IReportService reportService = new ReportService();
+            IReportService reportService = new SqlReportService();
             ReportMenu reportMenu = new ReportMenu(reportService, productService, orderService);
 
             while (true)
