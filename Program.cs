@@ -1,103 +1,82 @@
-﻿
-using MyStore.MyStore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System;
 
 namespace MyStore
 {
     class Program
     {
-        static void displaymenue()
+         static void DisplayMainMenu()
         {
-            
- 
-            Console.WriteLine("\n---  MY STORE SYSTEM ---");
-            Console.WriteLine("1. Product");
-            Console.WriteLine("2. Customers");
-            Console.WriteLine("3. Orders");
-            Console.WriteLine("4. Discounts");
+            Console.ForegroundColor = ConsoleColor.Cyan;
+            Console.WriteLine("\n==========================================");
+            Console.WriteLine("          MY STORE SYSTEM (JSON)          ");
+            Console.WriteLine("==========================================");
+            Console.ResetColor();
+            Console.WriteLine("1. Product Management");
+            Console.WriteLine("2. Customers Management");
+            Console.WriteLine("3. Orders Management");
+            Console.WriteLine("4. Discounts Management");
             Console.WriteLine("5. Reports & Statistics");
             Console.WriteLine("0. Exit");
-            
+            Console.WriteLine("==========================================");
         }
 
         static void Main(string[] args)
         {
-            Productservices product1 = new Productservices();
-            CustomerClass customer1 = new CustomerClass();
-            Orderservices order1 = new Orderservices();
-            DiscountServices discount1 = new DiscountServices();
-            ReportServices report1 = new ReportServices();
-            DataStore store = new DataStore();
+             IProductService productService = new ProductService();
+            ICustomerService customerService = new CustomerService();
+            IDiscountService discountService = new DiscountService();
+            IOrderService orderService = new OrderService();
+            IReportService reportService = new ReportService();
 
-            try
+             ProductMenu productMenu = new ProductMenu(productService);
+            CustomerMenu customerMenu = new CustomerMenu(customerService);
+            DiscountMenu discountMenu = new DiscountMenu(discountService);
+            OrderMenu orderMenu = new OrderMenu(orderService, productService, customerService, discountService);
+            ReportMenu reportMenu = new ReportMenu(reportService, productService, orderService);
+
+             InputHelper.WriteLineWithColor("Inventory data loaded successfully from JSON storage.", ConsoleColor.Green);
+
+             while (true)
             {
-                List<Product> savedProducts = store.LoadProducts();
-                product1.SetProductsList(savedProducts);
-                product1.UpdateIdCounter(); 
-
-                List<Customer> savedCustomers = store.LoadCustomers();
-                customer1.SetCustomersList(savedCustomers);
-                customer1.UpdateIdCounter();
-                List<Order> savedOrders = store.LoadOrders();
-
-                order1.SetOrdersList(savedOrders);
-                order1.UpdateIdCounter();
-
-
-                List<Discount> savedDiscounts = store.LoadDiscounts();
-                discount1.SetDiscountsList(savedDiscounts);
-                discount1.UpdateIdCounter();
-
-                if (savedProducts.Count > 0 || savedCustomers.Count > 0 || savedOrders.Count > 0 || savedDiscounts.Count > 0)
+                try
                 {
-                    InputHelper.WriteLineWithColor("Inventory data loaded successfully from JSON storage.", ConsoleColor.Cyan);
-                }
-            }
-            catch (Exception ex)
-            {
-                InputHelper.WriteLineWithColor("Initialization Warning: " + ex.Message, ConsoleColor.Yellow);
-            }
+                    DisplayMainMenu();
+                    int choice = InputHelper.ReadInt("Select an option: ", 0, 5);
 
-            while (true)
-            {
-                try {
-                    displaymenue();
-                    int choice1 = InputHelper.ReadInt("Select an option:", 0, 5); ;
-                    switch (choice1)
+                    switch (choice)
                     {
-                        case 1: product1.displayproductmenue(); break;
-                        case 2: customer1.DisplayCustomerMenu(); break;
-                        case 3: order1.DisplayOrderMenu(product1, customer1, discount1); break;
-                        case 4: discount1.DisplayDiscountMenu(); break;
-                        case 5: report1.DisplayReportMenu(product1, order1); break;
+                        case 1:
+                            productMenu.DisplayProductMenu();
+                            break;
+                        case 2:
+                            customerMenu.DisplayCustomerMenu();
+                            break;
+                        case 3:
+                            orderMenu.DisplayOrderMenu();
+                            break;
+                        case 4:
+                            discountMenu.DisplayDiscountMenu();
+                            break;
+                        case 5:
+                            reportMenu.DisplayReportMenu();
+                            break;
                         case 0:
-                            Console.WriteLine("Saving store data to JSON...");
-                            store.SaveProducts(product1.GetProductsList());
-                            store.SaveCustomers(customer1.GetCustomersList());
-                            store.SaveOrders(order1.GetOrdersList());
-                            store.SaveDiscounts(discount1.GetDiscountsList());
-                            Console.WriteLine("Exiting program... Goodbye!");
+                             Console.WriteLine("All data is securely saved in JSON files. Exiting program... Goodbye!");
                             return;
-                        default: Console.WriteLine("Invalid option. Please try again."); break;
+                        default:
+                            Console.WriteLine("Invalid option. Please try again.");
+                            break;
                     }
-
                 }
                 catch (BusinessException ex)
                 {
-
-                    InputHelper.WriteLineWithColor($"warning: {ex.Message}", ConsoleColor.Yellow);
+                     InputHelper.WriteLineWithColor($"\nWarning: {ex.Message}", ConsoleColor.Yellow);
                 }
-           
                 catch (Exception ex)
                 {
-
-                    InputHelper. WriteLineWithColor($"error: {ex.Message}", ConsoleColor.Red);
+                     InputHelper.WriteLineWithColor($"\nSystem Error: {ex.Message}", ConsoleColor.Red);
                 }
-            }    
-      
+            }
         }
-
     }
 }

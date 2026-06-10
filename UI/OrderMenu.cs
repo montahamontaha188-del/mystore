@@ -1,38 +1,28 @@
-﻿
+﻿ 
 using System;
 using System.Collections.Generic;
-using System.Text;
+using System.Linq;
 
 namespace MyStore
 {
-    public class OrderItem
+    public class OrderMenu
     {
-        public Product Product { get; set; }
-        public int Quantity { get; set; }
-        public double Subtotal => Product.Price * Quantity;
-    }
+        private readonly IOrderService _orderService;
+        private readonly IProductService _productService;
+        private readonly ICustomerService _customerService;
+        private readonly IDiscountService _discountService;
 
-
-    public class Order
-    {
-        public int Id { get; set; }
-        public Customer Customer { get; set; }
-        public List<OrderItem> Items { get; set; } = new();
-        public DateTime OrderDate { get; set; }
-
-        public string? AppliedDiscountCode { get; set; }
-        public double DiscountPercentage { get; set; }
-        public double Subtotal1 => Items.Sum(i => i.Subtotal);
-        public double Total => Subtotal1 - (Subtotal1 * (DiscountPercentage / 100));
-    }
-    public class Orderservices
-    {
-        private List<Order> ordersList = new();
-        private int idCounter = 1;
-
-        public void DisplayOrderMenu(Productservices productManager, CustomerClass customerManager, DiscountServices discountManager)
+        // حقن جميع الخدمات المطلوبة لإتمام عملية الطلب عبر الـ Constructor
+        public OrderMenu(IOrderService orderService, IProductService productService, ICustomerService customerService, IDiscountService discountService)
         {
+            _orderService = orderService;
+            _productService = productService;
+            _customerService = customerService;
+            _discountService = discountService;
+        }
 
+        public void DisplayOrderMenu()
+        {
             while (true)
             {
                 Console.WriteLine("\n--- ORDER MENU ---");
@@ -41,80 +31,74 @@ namespace MyStore
                 Console.WriteLine("3. View Order Details");
                 Console.WriteLine("0. Back to Main Menu");
 
-
                 int choice = InputHelper.ReadInt("Select an option: ", 0, 3);
 
                 switch (choice)
                 {
-                    case 1:
-                        CreateOrder(productManager, customerManager, discountManager);
-                        break;
-                    case 2:
-                        ListAllOrders();
-                        break;
-                    case 3:
-                        ViewOrderDetails();
-                        break;
-                    case 0:
-                        Console.WriteLine("Returning to main menu...");
-                        return;
-                    default:
-                        Console.WriteLine("Invalid choice. Please try again.");
-                        break;
+                    case 1: CreateOrder(); break;
+                    case 2: ListAllOrders(); break;
+                    case 3: ViewOrderDetails(); break;
+                    case 0: Console.WriteLine("Returning to main menu..."); return;
+                    default: Console.WriteLine("Invalid choice. Please try again."); break;
                 }
             }
         }
-        private void CreateOrder(Productservices productManager1, CustomerClass customerManager1, DiscountServices discountManager)
+
+        private void CreateOrder()
         {
-
-
             int customerId = InputHelper.ReadInt("Enter Customer ID: ");
+            var customer = _customerService.GetCustomerById(customerId);
 
-            var customer = customerManager1.GetCustomerById(customerId);
             if (customer == null)
             {
                 throw new BusinessException("Error: Customer not found!");
-             
             }
 
             Order newOrder = new Order
             {
-                Id = idCounter++,
-                Customer = customer,
-                OrderDate = DateTime.Now
+                Customer = customer
             };
 
-
+            // حلقة تكرارية لإضافة عناصر الطلب حركياً
             while (true)
             {
-                try {
+                try
+                {
                     int productId = InputHelper.ReadInt("Enter Product ID to add (or 0 to finish adding): ");
-
                     if (productId == 0) break;
 
-                    var product = productManager1.GetProductById(productId);
+                    var product = _productService.GetProductById(productId);
                     if (product == null)
                     {
                         throw new BusinessException("Error: Product not found!");
-
                     }
 
+                    int quantity = InputHelper.ReadInt($"Enter quantity for '{product.Name}' (Available: {product.Quantity}): ", 1, product.Quantity);
 
-                    int quantity1 = InputHelper.ReadInt($"Enter quantity for '{product.Name}' (Available: {product.Quantity}): ", 1, product.Quantity);
-
-
-
-                    OrderItem item = new OrderItem
+                    // التحقق من عدم تكرار إضافة نفس المنتج في نفس الفاتورة
+                    var existingItem = newOrder.Items.FirstOrDefault(i => i.Product.Id == productId);
+                    if (existingItem != null)
                     {
-                        Product = product,
-                        Quantity = quantity1
-                    };
-                    newOrder.Items.Add(item);
-                    Console.WriteLine($"Added {quantity1} x '{product.Name}' to order.");
+                        if (existingItem.Quantity + quantity > product.Quantity)
+                        {
+                            throw new BusinessException($"Error: Total requested quantity exceeds available stock!");
+                        }
+                        existingItem.Quantity += quantity;
+                    }
+                    else
+                    {
+                        OrderItem item = new OrderItem
+                        {
+                            Product = product,
+                            Quantity = quantity
+                        };
+                        newOrder.Items.Add(item);
+                    }
+
+                    Console.WriteLine($"Added {quantity} x '{product.Name}' to order.");
                 }
                 catch (BusinessException ex)
                 {
-
                     InputHelper.WriteLineWithColor($"warning: {ex.Message}", ConsoleColor.Yellow);
                 }
             }
@@ -122,15 +106,15 @@ namespace MyStore
             if (newOrder.Items.Count == 0)
             {
                 throw new BusinessException("Order cancelled because no items were added.");
-              
             }
+
+            // معالجة كود التخفيض
             Console.Write("Do you have a discount code? (leave blank to skip): ");
             string codeInput = Console.ReadLine().Trim().ToUpper();
+
             if (!string.IsNullOrEmpty(codeInput))
             {
-
-                var discount = discountManager.GetActiveDiscount(codeInput);
-
+                var discount = _discountService.GetActiveDiscount(codeInput);
                 if (discount != null)
                 {
                     newOrder.AppliedDiscountCode = discount.Code;
@@ -145,37 +129,32 @@ namespace MyStore
                 }
             }
 
+            // تأكيد العملية وحفظها عبر الخدمة
             if (InputHelper.Confirm($"\nTotal amount after discount is: {newOrder.Total:0.00}. Confirm order?"))
-
-
             {
-
-                foreach (var i in newOrder.Items)
-                {
-                    i.Product.Quantity -= i.Quantity;
-                }
-
-                ordersList.Add(newOrder);
-
-                Console.WriteLine($"Order ID: {newOrder.Id} created successfully with today's date.");
-                return;
+                _orderService.CreateOrder(newOrder);
+                Console.ForegroundColor = ConsoleColor.Green;
+                Console.WriteLine($"Order created successfully with today's date.");
+                Console.ResetColor();
             }
-
-
+            else
+            {
+                Console.WriteLine("Order cancelled.");
+            }
         }
 
         private void ListAllOrders()
         {
-            if (ordersList.Count == 0)
+            var orders = _orderService.GetAllOrders();
+            if (!orders.Any())
             {
                 throw new BusinessException("No orders found.");
-               
             }
 
             Console.WriteLine("\n" + "ID".PadRight(5) + "| " + "Customer".PadRight(20) + "| " + "Date".PadRight(12) + "| " + "Total");
             Console.WriteLine("-----|---------------------|------------|----------");
 
-            foreach (var order in ordersList)
+            foreach (var order in orders)
             {
                 Console.WriteLine(
                     order.Id.ToString().PadRight(5) + "| " +
@@ -188,16 +167,13 @@ namespace MyStore
 
         private void ViewOrderDetails()
         {
-
             int id = InputHelper.ReadInt("Enter Order ID to view details: ");
+            var order = _orderService.GetOrderById(id);
 
-            var order = ordersList.FirstOrDefault(o => o.Id == id);
             if (order == null)
             {
                 throw new BusinessException("Error: Order ID not found.");
-             
             }
-
 
             Console.WriteLine("\n==========================================");
             Console.WriteLine($"                RECEIPT                  ");
@@ -215,48 +191,16 @@ namespace MyStore
             }
             Console.WriteLine("------------------------------------------");
             Console.WriteLine($"Subtotal:     {order.Subtotal1:0.00}");
+
             if (!string.IsNullOrEmpty(order.AppliedDiscountCode))
             {
-
                 double discountAmount = order.Subtotal1 * (order.DiscountPercentage / 100);
-
-
                 Console.WriteLine($"Discount:     {order.AppliedDiscountCode} (-{order.DiscountPercentage}%) -> -{discountAmount:0.00}");
                 Console.WriteLine("------------------------------------------");
             }
 
             Console.WriteLine($"GRAND TOTAL:  {order.Total:0.00}");
-
             Console.WriteLine("==========================================");
         }
-        public List<Order> GetOrdersList()
-        {
-            return ordersList;
-        }
-        
-       
-        public void SetOrdersList(List<Order> list)
-        {
-            ordersList = list;
-        }
-
-      
-        public void UpdateIdCounter()
-        {
-            if (ordersList != null && ordersList.Count > 0)
-            {
-                idCounter = ordersList.Max(o => o.Id) + 1;
-            }
-            else
-            {
-                idCounter = 1;
-            }
-        }
     }
-
-
-
 }
-    
-
-
