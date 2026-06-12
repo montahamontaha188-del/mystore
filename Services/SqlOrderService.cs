@@ -38,8 +38,8 @@ namespace MyStore
 
                             newOrderId = Convert.ToInt32(cmd.ExecuteScalar());
                         }
+                        order.Id = newOrderId;
 
-                      
                         string itemQuery = @"INSERT INTO OrderItems (OrderId, ProductId, Quantity, Price) 
                                              VALUES (@OrderId, @ProductId, @Quantity, @Price)";
 
@@ -60,13 +60,83 @@ namespace MyStore
                     catch (Exception ex)
                     {
                         transaction.Rollback(); 
-                        throw new Exception("خطأ أثناء حفظ الطلبية: " + ex.Message);
+                        throw new Exception("error " + ex.Message);
                     }
                 }
             }
         }
 
-        public IEnumerable<Order> GetAllOrders() => new List<Order>();
-        public Order GetOrderById(int id) => null;
+        public IEnumerable<Order> GetAllOrders()
+        {
+     
+            var ordersMap = new Dictionary<int, Order>();
+
+            string query = @" SELECT o.Id AS OrderId, o.OrderDate, o.AppliedDiscountCode, o.DiscountPercentage,
+                       c.Id AS CustomerId, c.Name AS CustomerName, c.PhoneNumber,
+                       oi.Quantity, oi.Price AS ItemPrice,
+                       p.Id AS ProductId, p.Name AS ProductName
+                FROM Orders o
+                INNER JOIN Customers c ON o.CustomerId = c.Id
+                LEFT JOIN OrderItems oi ON o.Id = oi.OrderId
+                LEFT JOIN Products p ON oi.ProductId = p.Id";
+
+            using (SqlConnection connection = new SqlConnection(_connectionString))
+            {
+                connection.Open();
+                using (SqlCommand cmd = new SqlCommand(query, connection))
+                {
+                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            int orderId = Convert.ToInt32(reader["OrderId"]);
+
+                           
+                            if (!ordersMap.TryGetValue(orderId, out var order))
+                            {
+                                order = new Order
+                                {
+                                    Id = orderId,
+                                    OrderDate = Convert.ToDateTime(reader["OrderDate"]),
+                                    AppliedDiscountCode = reader["AppliedDiscountCode"] == DBNull.Value ? null : reader["AppliedDiscountCode"].ToString(),
+                                    DiscountPercentage = Convert.ToDouble(reader["DiscountPercentage"]),
+                                    Customer = new Customer
+                                    {
+                                        Id = Convert.ToInt32(reader["CustomerId"]),
+                                        Name = reader["CustomerName"].ToString(),
+                                        PhoneNumber = reader["PhoneNumber"] == DBNull.Value ? "" : reader["PhoneNumber"].ToString()
+                                    }
+                                };
+                                ordersMap.Add(orderId, order);
+                            }
+
+                           
+                            if (reader["ProductId"] != DBNull.Value)
+                            {
+                                var item = new OrderItem
+                                {
+                                    Product = new Product
+                                    {
+                                        Id = Convert.ToInt32(reader["ProductId"]),
+                                        Name = reader["ProductName"].ToString(),
+                                        Price = Convert.ToDouble(reader["ItemPrice"])
+                                    },
+                                    Quantity = Convert.ToInt32(reader["Quantity"])
+                                };
+                                order.Items.Add(item);
+                            }
+                        }
+                    }
+                }
+            }
+            return ordersMap.Values;
+        }
+
+        
+        public Order GetOrderById(int id)
+        {
+          
+            return GetAllOrders().FirstOrDefault(o => o.Id == id);
+        }
     }
 }

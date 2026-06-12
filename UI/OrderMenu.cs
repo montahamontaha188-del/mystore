@@ -112,7 +112,7 @@ namespace MyStore
                 }
             }
 
-            if (InputHelper.Confirm($"\nTotal amount after discount is: {newOrder.Total:0.00}. Confirm order?"))
+            if (InputHelper.Confirm($"\nTotal amount  is: {newOrder.Total:0.00}. Confirm order?"))
             {
     
                 foreach (var item in newOrder.Items)
@@ -178,4 +178,7 @@ namespace MyStore
             Console.WriteLine("==========================================");
         }
     }
+
+
+
 }

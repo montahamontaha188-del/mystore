@@ -48,6 +48,10 @@ namespace MyStore
             {
                 Console.WriteLine($"{i + 1}. {categories[i]}");
             }
+            /*var list1 = Enum.GetValues(typeof(Category)).Cast<Category>().ToList();
+            foreach (var category in list1) {
+                Console.WriteLine(category);}
+            int count =list1.Count*/
 
             int categoryChoice = InputHelper.ReadInt("Select an option: ", 1, categories.Length);
             Category selectedCategory = categories[categoryChoice - 1];
