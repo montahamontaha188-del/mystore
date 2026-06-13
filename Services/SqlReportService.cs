@@ -7,7 +7,7 @@ namespace MyStore
 {
     public class SqlReportService : IReportService
     {
-        private readonly string _connectionString = "Server=.;Database=StoreDb;Trusted_Connection=True;TrustServerCertificate=True;";
+        private readonly string _connectionString = "Server=DESKTOP-9LFOAF6\\SQLEXPRESS;Database=StoreDb;Trusted_Connection=True;TrustServerCertificate=True;";
 
          public IEnumerable<dynamic> GetBestSellingProducts(IEnumerable<Order> orders)
         {

@@ -8,7 +8,7 @@ namespace MyStore
     public class SqlOrderService : IOrderService
     {
       
-        private readonly string _connectionString = "Server=.;Database=StoreDb;Trusted_Connection=True;TrustServerCertificate=True;";
+        private readonly string _connectionString = "Server=DESKTOP-9LFOAF6\\SQLEXPRESS;Database=StoreDb;Trusted_Connection=True;TrustServerCertificate=True;";
 
         public void AddOrder(Order order)
         {
@@ -21,7 +21,7 @@ namespace MyStore
                     try
                     {
                        
-                        DateTime orderDate = (order.OrderDate < new DateTime(1753, 1, 1)) ? DateTime.Now : order.OrderDate;
+                        DateTime orderDate = DateTime.Now ;
 
                       
                         string orderQuery = @"INSERT INTO Orders (CustomerId, OrderDate, AppliedDiscountCode, DiscountPercentage) 
@@ -35,7 +35,6 @@ namespace MyStore
                             cmd.Parameters.AddWithValue("@OrderDate", orderDate);
                             cmd.Parameters.AddWithValue("@AppliedDiscountCode", (object)order.AppliedDiscountCode ?? DBNull.Value);
                             cmd.Parameters.AddWithValue("@DiscountPercentage", order.DiscountPercentage);
-
                             newOrderId = Convert.ToInt32(cmd.ExecuteScalar());
                         }
                         order.Id = newOrderId;
