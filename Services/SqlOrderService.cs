@@ -7,8 +7,14 @@ namespace MyStore
 {
     public class SqlOrderService : IOrderService
     {
-      
-        private readonly string _connectionString = "Server=DESKTOP-9LFOAF6\\SQLEXPRESS;Database=StoreDb;Trusted_Connection=True;TrustServerCertificate=True;";
+
+        private readonly string _connectionString;
+
+        public SqlOrderService(string connectionString)
+        {
+            _connectionString = connectionString;
+        }
+
 
         public void AddOrder(Order order)
         {

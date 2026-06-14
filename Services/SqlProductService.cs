@@ -8,7 +8,13 @@ namespace MyStore
     
     public class SqlProductService : IProductService
     {
-        private readonly string _connectionString = "Server=DESKTOP-9LFOAF6\\SQLEXPRESS;Database=StoreDb;Trusted_Connection=True;TrustServerCertificate=True;";
+
+        private readonly string _connectionString;
+
+        public SqlProductService(string connectionString)
+        {
+            _connectionString = connectionString;
+        }
 
        
         public void AddProduct(Product product)

@@ -7,9 +7,15 @@ namespace MyStore
 {
     public class SqlReportService : IReportService
     {
-        private readonly string _connectionString = "Server=DESKTOP-9LFOAF6\\SQLEXPRESS;Database=StoreDb;Trusted_Connection=True;TrustServerCertificate=True;";
+        private readonly string _connectionString;
 
-         public IEnumerable<dynamic> GetBestSellingProducts(IEnumerable<Order> orders)
+        public SqlReportService(string connectionString)
+        {
+            _connectionString = connectionString;
+        }
+
+
+        public IEnumerable<dynamic> GetBestSellingProducts(IEnumerable<Order> orders)
         {
             List<dynamic> results = new List<dynamic>();
             string query = @"SELECT TOP 5 p.Name, SUM(oi.Quantity) as TotalQty

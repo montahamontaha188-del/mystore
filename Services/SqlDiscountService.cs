@@ -8,9 +8,14 @@ namespace MyStore
 
     public class SqlDiscountService : IDiscountService
     {
-        private readonly string _connectionString = "Server=DESKTOP-9LFOAF6\\SQLEXPRESS;Database=StoreDb;Trusted_Connection=True;TrustServerCertificate=True;";
+        private readonly string _connectionString;
 
-      
+        public SqlDiscountService(string connectionString)
+        {
+            _connectionString = connectionString;
+        }
+
+
         public void AddDiscount(Discount discount)
         {
             string query = @"INSERT INTO Discounts (Code, Percentage, IsActive) 

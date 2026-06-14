@@ -1,4 +1,5 @@
 ﻿
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,25 +19,42 @@ namespace MyStore
             Console.WriteLine("0. Exit");
         }
 
+
         static void Main(string[] args)
         {
-          
-            IProductService productService = new SqlProductService();
-            ProductMenu productMenu = new ProductMenu(productService);
- 
-            ICustomerService customerService = new SqlCustomerService();
-            CustomerMenu customerMenu = new CustomerMenu(customerService);
 
-     
-            IDiscountService discountService = new SqlDiscountService();
-            DiscountMenu discountMenu = new DiscountMenu(discountService);
- 
-            IOrderService orderService = new SqlOrderService();
-            OrderMenu orderMenu = new OrderMenu(orderService, productService, customerService, discountService);
+            string _connectionString = "Server=HP0005WIN11A-E;Database=StoreDb;Trusted_Connection=True;TrustServerCertificate=True;";
 
-           
-            IReportService reportService = new SqlReportService();
-            ReportMenu reportMenu = new ReportMenu(reportService, productService, orderService);
+
+            var services = new ServiceCollection();
+
+            // Services
+            // DI Types: AddScoped AddTransient  AddSingleton
+            services.AddScoped<IProductService, SqlProductService>(sp => new SqlProductService(_connectionString));
+            services.AddScoped<ICustomerService, SqlCustomerService>(sp => new SqlCustomerService(_connectionString));
+            services.AddScoped<IDiscountService, SqlDiscountService>(sp => new SqlDiscountService(_connectionString));
+            services.AddScoped<IOrderService, SqlOrderService>(sp => new SqlOrderService(_connectionString));
+            services.AddScoped<IReportService, SqlReportService>(sp => new SqlReportService(_connectionString));
+
+            // UI Menus
+            services.AddScoped<ProductMenu>();
+            services.AddScoped<CustomerMenu>();
+            services.AddScoped<DiscountMenu>();
+            services.AddScoped<OrderMenu>();
+            services.AddScoped<ReportMenu>();
+
+            var provider = services.BuildServiceProvider();
+
+            var productMenu = provider.GetRequiredService<ProductMenu>();
+            var customerMenu = provider.GetRequiredService<CustomerMenu>();
+            var discountMenu = provider.GetRequiredService<DiscountMenu>();
+            var orderMenu = provider.GetRequiredService<OrderMenu>();
+            var reportMenu = provider.GetRequiredService<ReportMenu>();
+
+
+
+
+
 
             while (true)
             {

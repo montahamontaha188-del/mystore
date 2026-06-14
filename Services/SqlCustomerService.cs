@@ -8,9 +8,14 @@ namespace MyStore
 
     public class SqlCustomerService : ICustomerService
     {
-        private readonly string _connectionString = "Server=DESKTOP-9LFOAF6\\SQLEXPRESS;Database=StoreDb;Trusted_Connection=True;TrustServerCertificate=True;";
+        private readonly string _connectionString;
 
-       
+        public SqlCustomerService(string connectionString)
+        {
+            _connectionString = connectionString;
+        }
+
+
         public void AddCustomer(Customer customer)
         {
             string query = @"INSERT INTO Customers (Name, PhoneNumber) 
